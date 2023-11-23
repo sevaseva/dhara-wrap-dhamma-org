@@ -59,15 +59,19 @@ function wrap_dhamma( $page, $lang = null ) {
 	// we're done
 }
 
-function pull_page ( $url, $lang ) {
-	$raw = fetch_url ( $url );
-	$raw = fixURLs ( $raw, $lang );
+function prepare_html( $html, $lang ) {
+	$raw = fixURLs ( $html, $lang );
 	$raw = stripH1 ( $raw );
 	$raw = stripHR ( $raw );
 	$raw = changeTag ( $raw, "h3", "h2" );
 	$raw = changeTag ( $raw, "h4", "h3" );
 	$raw = fixGoenkaImages ( $raw );
 	return $raw;
+}
+
+function pull_page ( $url, $lang ) {
+	$raw = fetch_url ( $url );
+	return prepare_html($raw, $lang);
 }
 
 const LOCAL_URLS = array(
