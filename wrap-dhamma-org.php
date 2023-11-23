@@ -45,12 +45,6 @@ function wrap_dhamma( $page, $lang = null ) {
 			$url = 'https://www.dhamma.org/' . $lang . '/' . $page . "?raw";
 			$text_to_output = pull_page( $url, $lang );
 			break;
-
-		case 'video' :
-			$url = 'https://video.server.dhamma.org/video/';
-			$text_to_output = pull_video_page( $url );
-			break;
-
 		default:
 			die ( "invalid page '".$page."'" );
 	}
@@ -76,19 +70,6 @@ function pull_page ( $url, $lang ) {
 	return $raw;
 }
 
-function pull_video_page ( $url ) {
-	$raw = fetch_url ( $url );
-	$raw = getBodyContent ( $raw );
-	$raw = stripH1 ( $raw );
-	$raw = stripHR ( $raw );
-	$raw = stripTableTags ( $raw );
-	$raw = stripExessVideoLineBreaks ( $raw );
-	$raw = fixVideoURLS ( $raw );
-	$raw = fixBlueBallImages ( $raw );
-	$raw = stripHomeLink ( $raw );
-	return $raw;
-}
-
 const LOCAL_URLS = array(
 	'art' => '/vipassana/art-of-living/',
 	'goenka' => '/vipassana/teacher-goenka/',
@@ -108,11 +89,6 @@ function fixURLs ( $raw, $lang ) {
 		"<a href='https://www.dhamma.org/" . $lang . "/docs/core/code-" . $lang . ".pdf'>here</a>", $raw);
 	$raw = str_replace('"/en/docs/forms/Dhamma.org_Privacy_Policy.pdf"',
 		'"https://www.dhamma.org/en/docs/forms/Dhamma.org_Privacy_Policy.pdf"', $raw);
-	return $raw;
-}
-
-function fixVideoURLS ( $raw ) {
-	$raw = preg_replace( "#<a href='./intro/#si", "<a href='http://video.server.dhamma.org/video/intro/", $raw );
 	return $raw;
 }
 
@@ -139,39 +115,6 @@ function fixGoenkaImages ( $raw ) {
 	$raw = str_replace('<img alt="S. N. Goenka at U.N."', '<img alt="S. N. Goenka at U.N." style="display: block; margin-left: auto; margin-right: auto;"', $raw);
 	$raw = str_replace('Photo courtesy Beliefnet, Inc.', '<p style="text-align:center">Photo courtesy Beliefnet, Inc.</p>', $raw);
 
-	return $raw;
-}
-
-function stripTableTags ( $raw ) {
-	$raw = preg_replace("@</*?table.*?>@si", '', $raw);
-	$raw = preg_replace("@</*?tr.*?>@si", '', $raw);
-	$raw = preg_replace("@</*?td.*?>@si", '', $raw);
-	return $raw;
-}
-
-function stripExessVideoLineBreaks ( $raw ) {
-	$raw = preg_replace( "@\n@si", '', $raw );
-	$raw = preg_replace( "@[ ]+@", ' ', $raw );
-	return $raw;
-}
-
-function getBodyContent ( $raw ) {
-	// take HTML between <body> and </body>
-	$bodypos = strpos($raw, '<body>');
-	$nohead = substr($raw, $bodypos + 6); // strip <body> tag as well
-	$bodyendpos = strpos($nohead, '</body>');
-	$raw = substr($nohead, 1, ($bodyendpos -1));
-	return $raw;
-}
-
-function fixBlueBallImages ( $raw ) {
-	$raw = preg_replace ( '#<IMG SRC="/images/icons/blueball.gif">#si', '', $raw );
-	return $raw;
-}
-
-function stripHomeLink ( $raw ) {
-	$raw = preg_replace ( "#Download a free copy of <a href='http://www.real.com'>RealPlayer</a>.#si", "", $raw );
-	$raw = preg_replace ( "#<br/> <a href='http://www.dhamma.org/'><img style='border:0' src='/images/icons/home.gif' alt=' '></A>#si", "", $raw );
 	return $raw;
 }
 
