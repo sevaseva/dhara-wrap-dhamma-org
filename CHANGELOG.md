@@ -22,3 +22,6 @@ Legacy version.
 - Proper HTTP error handling with status code checks
 - 15-second timeout to prevent site hangs
 - SSL verification enabled
+- Replace deprecated get_option('home') with home_url()
+- Add esc_url() for URL escaping
+- Add rel="noopener" to external links for security

@@ -194,18 +194,39 @@ const LOCAL_URLS = array(
 	'/' => '',
 );
 
+/**
+ * Fix internal URLs to point to local WordPress site.
+ *
+ * @since 1.0.0
+ * @param string $raw  HTML content.
+ * @param string $lang Language code.
+ * @return string Modified content.
+ */
 function fixURLs ( $raw, $lang ) {
-	foreach ( LOCAL_URLS as $from => $to ) {
-		$raw = str_replace('<a href="' . $from . '">', '<a href="' . get_option('home') . $to . '">', $raw);
-		$raw = str_replace("<a href='" . $from . "'>", '<a href="' . get_option('home') . $to . '">', $raw);
+	$local_urls = array(
+		'art'       => '/about/art-of-living/',
+		'goenka'    => '/about/goenka/',
+		'vipassana' => '/about/vipassana/',
+		'/'         => '',
+	);
+
+	$home_url = home_url();
+
+	foreach ( $local_urls as $from => $to ) {
+		$raw = str_replace( '<a href="' . $from . '">', '<a href="' . esc_url( $home_url . $to ) . '">', $raw );
+		$raw = str_replace( "<a href='" . $from . "'>", '<a href="' . esc_url( $home_url . $to ) . '">', $raw );
 	}
 
-	$raw = preg_replace("#<a href=[\"']/?code/?[\"']>#", '<a href="' . get_option('home') . '/courses/code-of-discipline/">', $raw);
-	$raw = str_replace("<a href='/bycountry/'>", '<a target="_blank" href="' . get_theme_mod( 'dhamma_schedule_link' ) . '">', $raw);
-	$raw = str_replace("<a href='/docs/core/code-" . $lang . ".pdf'>here</a>",
-		"<a href='https://www.dhamma.org/" . $lang . "/docs/core/code-" . $lang . ".pdf'>here</a>", $raw);
-	$raw = str_replace('"/en/docs/forms/Dhamma.org_Privacy_Policy.pdf"',
-		'"https://www.dhamma.org/en/docs/forms/Dhamma.org_Privacy_Policy.pdf"', $raw);
+	$raw = preg_replace( '#<a href=["\']/?code/?["\']>#', '<a href="' . esc_url( $home_url . '/courses/code-of-discipline/' ) . '">', $raw );
+	$raw = str_replace( "<a href='/bycountry/'>", '<a target="_blank" rel="noopener" href="https://courses.dhamma.org/en-US/schedules/schdhara">', $raw );
+	$raw = str_replace( "<a href='/docs/core/code-" . $lang . ".pdf'>here</a>",
+		'<a href="https://www.dhamma.org/' . $lang . '/docs/core/code-' . $lang . '.pdf">here</a>', $raw );
+	$raw = str_replace(
+		'"/en/docs/forms/Dhamma.org_Privacy_Policy.pdf"',
+		'"https://www.dhamma.org/en/docs/forms/Dhamma.org_Privacy_Policy.pdf"',
+		$raw
+	);
+
 	return $raw;
 }
 
