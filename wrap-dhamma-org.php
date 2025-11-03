@@ -74,33 +74,57 @@ function fetch_url( $url ) {
 	return wp_remote_retrieve_body( $r );
 }
 
+/**
+ * Main function to wrap and display dhamma.org content.
+ *
+ * @since 1.0.0
+ * @param string      $page Page slug to retrieve.
+ * @param string|null $lang Language code (defaults to site language).
+ * @return string|WP_Error Formatted content or error.
+ */
 function wrap_dhamma( $page, $lang = null ) {
-	$lang = isset($lang) ? $lang : substr(get_bloginfo('language'), 0, 2);
-	// validate page
-	switch ( $page ) {
-		case 'vipassana' :
-		case 'code' :
-		case 'goenka' :
-		case 'art' :
-		case 'qanda' :
-		case 'dscode' :
-		case 'osguide' :
-		case 'privacy' :
-			$url = 'https://www.dhamma.org/' . $lang . '/' . $page . "?raw";
-			$text_to_output = pull_page( $url, $lang );
-			break;
-		default:
-			die ( "invalid page '".$page."'" );
+	$lang = isset( $lang ) ? $lang : substr( get_bloginfo( 'language' ), 0, 2 );
+	
+	// Validate page.
+	$allowed_pages = wrap_dhamma_get_allowed_pages();
+	if ( ! in_array( $page, $allowed_pages, true ) ) {
+		$error_msg = sprintf(
+			/* translators: %s: page slug */
+			__( 'Invalid page requested: %s', 'wrap-dhamma-org' ),
+			esc_html( $page )
+		);
+		error_log( 'Wrap Dhamma.org: ' . $error_msg );
+		return new WP_Error( 'invalid_page', $error_msg );
 	}
 
-	// emit the required comment
-	echo '<!-- ' . $url . ' has been dynamically reformatted on ' . date("D M  j G:i s Y T") . '. -->';
+	// Build URL based on page type.
+	if ( 'video' === $page ) {
+		$url = 'https://video.server.dhamma.org/video/';
+		$text_to_output = pull_video_page( $url );
+	} else {
+		$url = 'https://www.dhamma.org/' . $lang . '/' . $page . '?raw';
+		$text_to_output = pull_page( $url, $lang );
+	}
 
-	// emit the reformatted page
-	echo $text_to_output;
+	// Handle errors.
+	if ( is_wp_error( $text_to_output ) ) {
+		return $text_to_output;
+	}
 
-	echo '<!-- end dynamically generated content.-->';
-	// we're done
+	if ( false === $text_to_output || empty( $text_to_output ) ) {
+		return new WP_Error( 'empty_content', __( 'No content retrieved from dhamma.org', 'wrap-dhamma-org' ) );
+	}
+
+	// Build output with comments.
+	$output = sprintf(
+		"<!-- %s dynamically reformatted on %s -->\n",
+		esc_url( $url ),
+		gmdate( 'D M j G:i:s Y T' )
+	);
+	$output .= $text_to_output;
+	$output .= "\n<!-- end dynamically generated content -->";
+
+	return $output;
 }
 
 function prepare_html( $html, $lang ) {
