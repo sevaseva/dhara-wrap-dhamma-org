@@ -294,7 +294,6 @@ function fixGoenkaImages ( $raw ) {
 	return $raw;
 }
 
-?>
 
 /**
  * Shortcode handler for [dhamma_content].
@@ -391,7 +390,6 @@ wrap_dhamma_clear_cache();
 echo '<div class="notice notice-success"><p>' . esc_html__( 'Cache cleared successfully!', 'wrap-dhamma-org' ) . '</p></div>';
 }
 
-?>
 <div class="wrap">
 <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
 
