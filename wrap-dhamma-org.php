@@ -230,28 +230,66 @@ function fixURLs ( $raw, $lang ) {
 	return $raw;
 }
 
+/**
+ * Strip H1 tags from content.
+ *
+ * @since 1.0.0
+ * @param string $raw HTML content.
+ * @return string Modified content.
+ */
 function stripH1( $raw ) {
-	return preg_replace('@<h1[^>]*?>.*?<\/h1>@si', '', $raw); //This isn't a great solution, not very dynamic, but it gets the job done.
+	return preg_replace( '@<h1[^>]*?>.*?</h1>@si', '', $raw );
 }
 
+/**
+ * Strip HR tags from content.
+ *
+ * @since 1.0.0
+ * @param string $raw HTML content.
+ * @return string Modified content.
+ */
 function stripHR ( $raw ) {
-	return preg_replace("@<hr.*?>@si", '', $raw);
+	return preg_replace( '@<hr.*?>@si', '', $raw );
 }
 
+/**
+ * Change HTML tag type.
+ *
+ * @since 1.0.0
+ * @param string $source  HTML content.
+ * @param string $oldTag  Old tag name.
+ * @param string $newTag  New tag name.
+ * @return string Modified content.
+ */
 function changeTag ( $source, $oldTag, $newTag ) {
 	$source = preg_replace( "@<{$oldTag}>@si", "<{$newTag}>", $source );
 	$source = preg_replace( "@</{$oldTag}>@si", "</{$newTag}>", $source );
 	return $source;
 }
 
+/**
+ * Fix Goenka image URLs and styling.
+ *
+ * @since 1.0.0
+ * @param string $raw HTML content.
+ * @return string Modified content.
+ */
 function fixGoenkaImages ( $raw ) {
-	//Make the Goenkaji images work - JDH 10/12/2014
+	// Fix image URLs.
 	$raw = preg_replace( '#/images/sng/#si', 'https://www.dhamma.org/images/sng/', $raw );
 
-	//Make the goenka images inline - JDH 10/12/2014
-	$raw = str_replace('class="www-float-right-bottom"', "align='right'", $raw);
-	$raw = str_replace('<img alt="S. N. Goenka at U.N."', '<img alt="S. N. Goenka at U.N." style="display: block; margin-left: auto; margin-right: auto;"', $raw);
-	$raw = str_replace('Photo courtesy Beliefnet, Inc.', '<p style="text-align:center">Photo courtesy Beliefnet, Inc.</p>', $raw);
+	// Fix image alignment.
+	$raw = str_replace( 'class="www-float-right-bottom"', "align='right'", $raw );
+	$raw = str_replace( '<img alt="S. N. Goenka at U.N."', '<img alt="S. N. Goenka at U.N." style="display: block; margin-left: auto; margin-right: auto;"', $raw );
+	$raw = str_replace( 'Photo courtesy Beliefnet, Inc.', '<p style="text-align:center">Photo courtesy Beliefnet, Inc.</p>', $raw );
+
+	// Replace main Goenka image with local copy.
+	$plugin_url = WRAP_DHAMMA_PLUGIN_URL;
+	$raw        = str_replace(
+		'src="https://www.dhamma.org/assets/sng/sng-f01f4d6595afa4ab14edced074a7e45c.gif"',
+		'id="goenka-image" src="' . esc_url( $plugin_url . 'goenka.png' ) . '"',
+		$raw
+	);
 
 	return $raw;
 }

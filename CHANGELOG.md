@@ -25,3 +25,6 @@ Legacy version.
 - Replace deprecated get_option('home') with home_url()
 - Add esc_url() for URL escaping
 - Add rel="noopener" to external links for security
+- Add PHPDoc comments to all HTML processing functions
+- Use WRAP_DHAMMA_PLUGIN_URL constant instead of hardcoded path
+- Improve code formatting and consistency
