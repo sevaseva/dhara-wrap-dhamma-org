@@ -1,22 +1,38 @@
 <?php
-/*
-Plugin Name: wrap-dhamma-org
-Description: retrieves, re-formats, and emits HTML for selected pages from www.dhamma.org
-Version: 3.01
-Authors: Joshua Hartwell <JHartwell@gmail.com> & Jeremy Dunn <jeremy.j.dunn@gmail.com>
+/**
+ * Plugin Name: Wrap Dhamma.org
+ * Plugin URI: https://github.com/sevaseva/dhara-wrap-dhamma-org
+ * Description: Retrieves, re-formats, and displays content from dhamma.org with caching and security improvements
+ * Version: 4.0.0
+ * Requires at least: 5.8
+ * Tested up to: 6.4
+ * Requires PHP: 7.4
+ * Author: Joshua Hartwell, Jeremy Dunn
+ * Author URI: https://github.com/sevaseva
+ * License: GPL v3 or later
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
+ * Text Domain: wrap-dhamma-org
+ * Domain Path: /languages
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3 or later.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>
+ *
+ * @package WrapDhammaOrg
+ */
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, version 3.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>
-*/
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 function fetch_url( $url ) {
 	$r = wp_remote_get( $url );

@@ -7,3 +7,7 @@ Major refactor in progress.
 ## [3.01] - Previous Version
 
 Legacy version.
+
+### Added
+- Complete plugin headers with WordPress standards
+- ABSPATH security check
