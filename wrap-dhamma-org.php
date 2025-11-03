@@ -66,11 +66,14 @@ function wrap_dhamma_get_allowed_pages() {
  * Fetch remote content with caching and proper error handling.
  *
  * @since 4.0.0
- * @param string $url URL to fetch.
+ * @param string $url        URL to fetch.
+ * @param int    $cache_time Cache expiration time in seconds.
  * @return string|WP_Error Content on success, WP_Error on failure.
  */
-function wrap_dhamma_fetch_remote_content( $url ) {
-	$cache_time = WRAP_DHAMMA_CACHE_EXPIRATION;
+function wrap_dhamma_fetch_remote_content( $url, $cache_time = null ) {
+	if ( null === $cache_time ) {
+		$cache_time = WRAP_DHAMMA_CACHE_EXPIRATION;
+	}
 
 	// Create cache key from URL.
 	$cache_key = 'wrap_dhamma_' . md5( $url );
@@ -282,7 +285,7 @@ function wrap_dhamma_strip_h1( $raw ) {
  * @param string $raw HTML content.
  * @return string Modified content.
  */
-function wrap_dhamma_strip_hr ( $raw ) {
+function wrap_dhamma_strip_hr( $raw ) {
 	return preg_replace( '@<hr.*?>@si', '', $raw );
 }
 
@@ -291,13 +294,13 @@ function wrap_dhamma_strip_hr ( $raw ) {
  *
  * @since 1.0.0
  * @param string $source  HTML content.
- * @param string $oldTag  Old tag name.
- * @param string $newTag  New tag name.
+ * @param string $old_tag  Old tag name.
+ * @param string $new_tag  New tag name.
  * @return string Modified content.
  */
-function wrap_dhamma_change_tag ( $source, $oldTag, $newTag ) {
-	$source = preg_replace( "@<{$oldTag}>@si", "<{$newTag}>", $source );
-	$source = preg_replace( "@</{$oldTag}>@si", "</{$newTag}>", $source );
+function wrap_dhamma_change_tag( $source, $old_tag, $new_tag ) {
+	$source = preg_replace( "@<{$old_tag}>@si", "<{$new_tag}>", $source );
+	$source = preg_replace( "@</{$old_tag}>@si", "</{$new_tag}>", $source );
 	return $source;
 }
 
@@ -308,7 +311,7 @@ function wrap_dhamma_change_tag ( $source, $oldTag, $newTag ) {
  * @param string $raw HTML content.
  * @return string Modified content.
  */
-function wrap_dhamma_fix_goenka_images ( $raw ) {
+function wrap_dhamma_fix_goenka_images( $raw ) {
 	// Fix image URLs.
 	$raw = preg_replace( '#/images/sng/#si', 'https://www.dhamma.org/images/sng/', $raw );
 
