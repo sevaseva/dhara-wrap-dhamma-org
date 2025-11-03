@@ -449,7 +449,6 @@ esc_html( $content->get_error_message() )
 
 return $content;
 }
-add_shortcode( 'dhamma_content', 'wrap_dhamma_shortcode' );
 
 /**
  * Clear cached content for dhamma.org pages.
@@ -520,7 +519,6 @@ function wrap_dhamma_settings_init() {
 		'wrap_dhamma_main_section'
 	);
 }
-add_action( 'admin_init', 'wrap_dhamma_settings_init' );
 
 /**
  * Settings section callback.
@@ -589,7 +587,6 @@ __( 'Wrap Dhamma.org', 'wrap-dhamma-org' ),
 'wrap_dhamma_options_page'
 );
 }
-add_action( 'admin_menu', 'wrap_dhamma_add_admin_menu' );
 
 /**
  * Render options page.
