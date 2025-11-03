@@ -13,6 +13,10 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 exit;
 }
 
+// Delete plugin options.
+delete_option( 'wrap_dhamma_cache_duration' );
+delete_option( 'wrap_dhamma_enabled_pages' );
+
 // Clear all cached content.
 global $wpdb;
 

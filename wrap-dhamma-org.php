@@ -486,6 +486,93 @@ $wpdb->esc_like( '_transient_timeout_wrap_dhamma_' ) . '%'
 }
 
 /**
+ * Initialize plugin settings.
+ *
+ * @since 4.0.0
+ */
+function wrap_dhamma_settings_init() {
+	register_setting( 'wrap_dhamma_settings', 'wrap_dhamma_cache_duration' );
+	register_setting( 'wrap_dhamma_settings', 'wrap_dhamma_enabled_pages' );
+
+	add_settings_section(
+		'wrap_dhamma_main_section',
+		__( 'Cache Settings', 'wrap-dhamma-org' ),
+		'wrap_dhamma_settings_section_callback',
+		'wrap_dhamma_settings'
+	);
+
+	add_settings_field(
+		'wrap_dhamma_cache_duration',
+		__( 'Cache Duration (seconds)', 'wrap-dhamma-org' ),
+		'wrap_dhamma_cache_duration_render',
+		'wrap_dhamma_settings',
+		'wrap_dhamma_main_section'
+	);
+
+	add_settings_field(
+		'wrap_dhamma_enabled_pages',
+		__( 'Enabled Pages', 'wrap-dhamma-org' ),
+		'wrap_dhamma_enabled_pages_render',
+		'wrap_dhamma_settings',
+		'wrap_dhamma_main_section'
+	);
+}
+add_action( 'admin_init', 'wrap_dhamma_settings_init' );
+
+/**
+ * Settings section callback.
+ *
+ * @since 4.0.0
+ */
+function wrap_dhamma_settings_section_callback() {
+	echo '<p>' . esc_html__( 'Configure caching and enabled pages for Dhamma.org content.', 'wrap-dhamma-org' ) . '</p>';
+}
+
+/**
+ * Render cache duration field.
+ *
+ * @since 4.0.0
+ */
+function wrap_dhamma_cache_duration_render() {
+	$duration = get_option( 'wrap_dhamma_cache_duration', WRAP_DHAMMA_CACHE_EXPIRATION );
+	?>
+	<input type="number" name="wrap_dhamma_cache_duration" value="<?php echo esc_attr( $duration ); ?>" min="300" step="300">
+	<p class="description">
+		<?php
+		printf(
+			/* translators: %d: default hours */
+			esc_html__( 'How long to cache content (default: %d seconds / 6 hours)', 'wrap-dhamma-org' ),
+			WRAP_DHAMMA_CACHE_EXPIRATION
+		);
+		?>
+	</p>
+	<?php
+}
+
+/**
+ * Render enabled pages field.
+ *
+ * @since 4.0.0
+ */
+function wrap_dhamma_enabled_pages_render() {
+	$allowed_pages = wrap_dhamma_get_allowed_pages();
+	$enabled_pages = get_option( 'wrap_dhamma_enabled_pages', $allowed_pages );
+
+	foreach ( $allowed_pages as $page ) {
+		$checked = in_array( $page, $enabled_pages, true ) ? 'checked' : '';
+		?>
+		<label>
+			<input type="checkbox" name="wrap_dhamma_enabled_pages[]" value="<?php echo esc_attr( $page ); ?>" <?php echo $checked; ?>>
+			<?php echo esc_html( ucfirst( $page ) ); ?>
+		</label><br>
+		<?php
+	}
+	?>
+	<p class="description"><?php esc_html_e( 'Select which pages can be retrieved from dhamma.org', 'wrap-dhamma-org' ); ?></p>
+	<?php
+}
+
+/**
  * Add admin menu for plugin settings.
  *
  * @since 4.0.0
@@ -507,37 +594,47 @@ add_action( 'admin_menu', 'wrap_dhamma_add_admin_menu' );
  * @since 4.0.0
  */
 function wrap_dhamma_options_page() {
-// Handle cache clearing.
-if ( isset( $_POST['wrap_dhamma_clear_cache'] ) && check_admin_referer( 'wrap_dhamma_clear_cache_action', 'wrap_dhamma_clear_cache_nonce' ) ) {
-wrap_dhamma_clear_cache();
-echo '<div class="notice notice-success"><p>' . esc_html__( 'Cache cleared successfully!', 'wrap-dhamma-org' ) . '</p></div>';
-}
+	// Handle cache clearing.
+	if ( isset( $_POST['wrap_dhamma_clear_cache'] ) && check_admin_referer( 'wrap_dhamma_clear_cache_action', 'wrap_dhamma_clear_cache_nonce' ) ) {
+		wrap_dhamma_clear_cache();
+		echo '<div class="notice notice-success"><p>' . esc_html__( 'Cache cleared successfully!', 'wrap-dhamma-org' ) . '</p></div>';
+	}
 
-<div class="wrap">
-<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+	?>
+	<div class="wrap">
+		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+		<form action="options.php" method="post">
+			<?php
+			settings_fields( 'wrap_dhamma_settings' );
+			do_settings_sections( 'wrap_dhamma_settings' );
+			submit_button();
+			?>
+		</form>
 
-<h2><?php esc_html_e( 'Cache Management', 'wrap-dhamma-org' ); ?></h2>
-<form method="post">
-<?php wp_nonce_field( 'wrap_dhamma_clear_cache_action', 'wrap_dhamma_clear_cache_nonce' ); ?>
-<p><?php esc_html_e( 'Clear all cached content to force fresh retrieval from dhamma.org', 'wrap-dhamma-org' ); ?></p>
-<button type="submit" name="wrap_dhamma_clear_cache" class="button button-secondary">
-<?php esc_html_e( 'Clear Cache', 'wrap-dhamma-org' ); ?>
-</button>
-</form>
+		<hr>
 
-<hr>
+		<h2><?php esc_html_e( 'Cache Management', 'wrap-dhamma-org' ); ?></h2>
+		<form method="post">
+			<?php wp_nonce_field( 'wrap_dhamma_clear_cache_action', 'wrap_dhamma_clear_cache_nonce' ); ?>
+			<p><?php esc_html_e( 'Clear all cached content to force fresh retrieval from dhamma.org', 'wrap-dhamma-org' ); ?></p>
+			<button type="submit" name="wrap_dhamma_clear_cache" class="button button-secondary">
+				<?php esc_html_e( 'Clear Cache', 'wrap-dhamma-org' ); ?>
+			</button>
+		</form>
 
-<h2><?php esc_html_e( 'Usage', 'wrap-dhamma-org' ); ?></h2>
-<p><?php esc_html_e( 'Use the shortcode in your posts or pages:', 'wrap-dhamma-org' ); ?></p>
-<code>[dhamma_content page="vipassana"]</code>
-<p><?php esc_html_e( 'Optional parameters:', 'wrap-dhamma-org' ); ?></p>
-<ul>
-<li><code>page</code> - <?php esc_html_e( 'Page to display (vipassana, code, goenka, art, qanda, dscode, osguide, privacy)', 'wrap-dhamma-org' ); ?></li>
-<li><code>lang</code> - <?php esc_html_e( 'Language code (defaults to site language)', 'wrap-dhamma-org' ); ?></li>
-</ul>
-<p><?php esc_html_e( 'Example:', 'wrap-dhamma-org' ); ?> <code>[dhamma_content page="goenka" lang="en"]</code></p>
-</div>
-<?php
+		<hr>
+
+		<h2><?php esc_html_e( 'Usage', 'wrap-dhamma-org' ); ?></h2>
+		<p><?php esc_html_e( 'Use the shortcode in your posts or pages:', 'wrap-dhamma-org' ); ?></p>
+		<code>[dhamma_content page="vipassana"]</code>
+		<p><?php esc_html_e( 'Optional parameters:', 'wrap-dhamma-org' ); ?></p>
+		<ul>
+			<li><code>page</code> - <?php esc_html_e( 'Page to display (vipassana, code, goenka, art, qanda, dscode, osguide, privacy, video)', 'wrap-dhamma-org' ); ?></li>
+			<li><code>lang</code> - <?php esc_html_e( 'Language code (defaults to site language)', 'wrap-dhamma-org' ); ?></li>
+		</ul>
+		<p><?php esc_html_e( 'Example:', 'wrap-dhamma-org' ); ?> <code>[dhamma_content page="goenka" lang="en"]</code></p>
+	</div>
+	<?php
 }
 
 /**
@@ -546,8 +643,14 @@ echo '<div class="notice notice-success"><p>' . esc_html__( 'Cache cleared succe
  * @since 4.0.0
  */
 function wrap_dhamma_activate() {
-// No special actions needed on activation.
-// Cache will be built on first request.
+	// Set default options.
+	if ( false === get_option( 'wrap_dhamma_cache_duration' ) ) {
+		add_option( 'wrap_dhamma_cache_duration', WRAP_DHAMMA_CACHE_EXPIRATION );
+	}
+
+	if ( false === get_option( 'wrap_dhamma_enabled_pages' ) ) {
+		add_option( 'wrap_dhamma_enabled_pages', wrap_dhamma_get_allowed_pages() );
+	}
 }
 register_activation_hook( __FILE__, 'wrap_dhamma_activate' );
 
@@ -557,7 +660,7 @@ register_activation_hook( __FILE__, 'wrap_dhamma_activate' );
  * @since 4.0.0
  */
 function wrap_dhamma_deactivate() {
-// Clear all cached content on deactivation.
-wrap_dhamma_clear_cache();
+	// Clear all cached content on deactivation.
+	wrap_dhamma_clear_cache();
 }
 register_deactivation_hook( __FILE__, 'wrap_dhamma_deactivate' );
