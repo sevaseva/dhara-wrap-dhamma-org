@@ -62,16 +62,61 @@ function wrap_dhamma_get_allowed_pages() {
 	return array( 'vipassana', 'code', 'goenka', 'art', 'qanda', 'dscode', 'osguide', 'privacy', 'video' );
 }
 
+/**
+ * Fetch remote content with caching and proper error handling.
+ *
+ * @since 4.0.0
+ * @param string $url URL to fetch.
+ * @return string|WP_Error Content on success, WP_Error on failure.
+ */
 function fetch_url( $url ) {
-	$r = wp_remote_get( $url );
-	if ( is_wp_error( $r ) ) {
-		// TODO(vlotoshnikov@gmail.com): Retry once and then
-		// return '<script>window.location.replace(substr($url, 0, -4))</script>';
-		// or even
-		// echo '<script>window.location.replace(substr($url, 0, -4))</script>'; return '';
-		// if second attempt also fails?
+	$cache_time = WRAP_DHAMMA_CACHE_EXPIRATION;
+
+	// Create cache key from URL.
+	$cache_key = 'wrap_dhamma_' . md5( $url );
+
+	// Check cache first.
+	$cached_content = get_transient( $cache_key );
+	if ( false !== $cached_content ) {
+		return $cached_content;
 	}
-	return wp_remote_retrieve_body( $r );
+
+	// Fetch from remote server.
+	$response = wp_remote_get(
+		$url,
+		array(
+			'timeout'    => 15,
+			'sslverify'  => true,
+			'user-agent' => 'WordPress/Wrap-Dhamma-Plugin/' . WRAP_DHAMMA_VERSION,
+		)
+	);
+
+	// Handle errors.
+	if ( is_wp_error( $response ) ) {
+		error_log( 'Wrap Dhamma.org fetch error: ' . $response->get_error_message() );
+		return $response;
+	}
+
+	$response_code = wp_remote_retrieve_response_code( $response );
+	if ( 200 !== $response_code ) {
+		$error_msg = sprintf(
+			/* translators: 1: URL, 2: HTTP status code */
+			__( 'Failed to fetch %1$s: HTTP %2$d', 'wrap-dhamma-org' ),
+			$url,
+			$response_code
+		);
+		error_log( 'Wrap Dhamma.org: ' . $error_msg );
+		return new WP_Error( 'http_error', $error_msg );
+	}
+
+	$content = wp_remote_retrieve_body( $response );
+
+	// Cache successful response.
+	if ( ! empty( $content ) ) {
+		set_transient( $cache_key, $content, $cache_time );
+	}
+
+	return $content;
 }
 
 /**

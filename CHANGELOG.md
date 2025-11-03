@@ -18,3 +18,7 @@ Legacy version.
 - Return content instead of echoing (better control flow)
 - Use gmdate() instead of date() for timezone safety
 - URL escaping with esc_url()
+- WordPress Transients API for intelligent caching (6-hour default)
+- Proper HTTP error handling with status code checks
+- 15-second timeout to prevent site hangs
+- SSL verification enabled
