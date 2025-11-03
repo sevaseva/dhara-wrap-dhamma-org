@@ -295,3 +295,33 @@ function fixGoenkaImages ( $raw ) {
 }
 
 ?>
+
+/**
+ * Shortcode handler for [dhamma_content].
+ *
+ * @since 4.0.0
+ * @param array $atts Shortcode attributes.
+ * @return string Formatted content or error message.
+ */
+function wrap_dhamma_shortcode( $atts ) {
+$atts = shortcode_atts(
+array(
+'page' => 'vipassana',
+'lang' => null,
+),
+$atts,
+'dhamma_content'
+);
+
+$content = wrap_dhamma( sanitize_text_field( $atts['page'] ), $atts['lang'] );
+
+if ( is_wp_error( $content ) ) {
+return sprintf(
+'<div class="dhamma-error">%s</div>',
+esc_html( $content->get_error_message() )
+);
+}
+
+return $content;
+}
+add_shortcode( 'dhamma_content', 'wrap_dhamma_shortcode' );
