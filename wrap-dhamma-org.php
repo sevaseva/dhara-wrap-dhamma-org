@@ -325,3 +325,96 @@ esc_html( $content->get_error_message() )
 return $content;
 }
 add_shortcode( 'dhamma_content', 'wrap_dhamma_shortcode' );
+
+/**
+ * Clear cached content for dhamma.org pages.
+ *
+ * @since 4.0.0
+ * @param string|null $page Specific page to clear, or null for all.
+ */
+function wrap_dhamma_clear_cache( $page = null ) {
+if ( null !== $page ) {
+$allowed_pages = wrap_dhamma_get_allowed_pages();
+if ( in_array( $page, $allowed_pages, true ) ) {
+$lang = substr( get_bloginfo( 'language' ), 0, 2 );
+if ( 'video' === $page ) {
+$url = 'https://video.server.dhamma.org/video/';
+} else {
+$url = 'https://www.dhamma.org/' . $lang . '/' . $page . '?raw';
+}
+$cache_key = 'wrap_dhamma_' . md5( $url );
+delete_transient( $cache_key );
+}
+} else {
+// Clear all cached content.
+global $wpdb;
+$wpdb->query(
+$wpdb->prepare(
+"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
+$wpdb->esc_like( '_transient_wrap_dhamma_' ) . '%'
+)
+);
+$wpdb->query(
+$wpdb->prepare(
+"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
+$wpdb->esc_like( '_transient_timeout_wrap_dhamma_' ) . '%'
+)
+);
+}
+}
+
+/**
+ * Add admin menu for plugin settings.
+ *
+ * @since 4.0.0
+ */
+function wrap_dhamma_add_admin_menu() {
+add_options_page(
+__( 'Wrap Dhamma.org Settings', 'wrap-dhamma-org' ),
+__( 'Wrap Dhamma.org', 'wrap-dhamma-org' ),
+'manage_options',
+'wrap-dhamma-org',
+'wrap_dhamma_options_page'
+);
+}
+add_action( 'admin_menu', 'wrap_dhamma_add_admin_menu' );
+
+/**
+ * Render options page.
+ *
+ * @since 4.0.0
+ */
+function wrap_dhamma_options_page() {
+// Handle cache clearing.
+if ( isset( $_POST['wrap_dhamma_clear_cache'] ) && check_admin_referer( 'wrap_dhamma_clear_cache_action', 'wrap_dhamma_clear_cache_nonce' ) ) {
+wrap_dhamma_clear_cache();
+echo '<div class="notice notice-success"><p>' . esc_html__( 'Cache cleared successfully!', 'wrap-dhamma-org' ) . '</p></div>';
+}
+
+?>
+<div class="wrap">
+<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+
+<h2><?php esc_html_e( 'Cache Management', 'wrap-dhamma-org' ); ?></h2>
+<form method="post">
+<?php wp_nonce_field( 'wrap_dhamma_clear_cache_action', 'wrap_dhamma_clear_cache_nonce' ); ?>
+<p><?php esc_html_e( 'Clear all cached content to force fresh retrieval from dhamma.org', 'wrap-dhamma-org' ); ?></p>
+<button type="submit" name="wrap_dhamma_clear_cache" class="button button-secondary">
+<?php esc_html_e( 'Clear Cache', 'wrap-dhamma-org' ); ?>
+</button>
+</form>
+
+<hr>
+
+<h2><?php esc_html_e( 'Usage', 'wrap-dhamma-org' ); ?></h2>
+<p><?php esc_html_e( 'Use the shortcode in your posts or pages:', 'wrap-dhamma-org' ); ?></p>
+<code>[dhamma_content page="vipassana"]</code>
+<p><?php esc_html_e( 'Optional parameters:', 'wrap-dhamma-org' ); ?></p>
+<ul>
+<li><code>page</code> - <?php esc_html_e( 'Page to display (vipassana, code, goenka, art, qanda, dscode, osguide, privacy)', 'wrap-dhamma-org' ); ?></li>
+<li><code>lang</code> - <?php esc_html_e( 'Language code (defaults to site language)', 'wrap-dhamma-org' ); ?></li>
+</ul>
+<p><?php esc_html_e( 'Example:', 'wrap-dhamma-org' ); ?> <code>[dhamma_content page="goenka" lang="en"]</code></p>
+</div>
+<?php
+}
