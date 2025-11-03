@@ -69,7 +69,7 @@ function wrap_dhamma_get_allowed_pages() {
  * @param string $url URL to fetch.
  * @return string|WP_Error Content on success, WP_Error on failure.
  */
-function fetch_url( $url ) {
+function wrap_dhamma_fetch_remote_content( $url ) {
 	$cache_time = WRAP_DHAMMA_CACHE_EXPIRATION;
 
 	// Create cache key from URL.
@@ -145,10 +145,10 @@ function wrap_dhamma( $page, $lang = null ) {
 	// Build URL based on page type.
 	if ( 'video' === $page ) {
 		$url = 'https://video.server.dhamma.org/video/';
-		$text_to_output = pull_video_page( $url );
+		$text_to_output = wrap_dhamma_pull_video_page( $url );
 	} else {
 		$url = 'https://www.dhamma.org/' . $lang . '/' . $page . '?raw';
-		$text_to_output = pull_page( $url, $lang );
+		$text_to_output = wrap_dhamma_pull_page( $url, $lang );
 	}
 
 	// Handle errors.
@@ -172,27 +172,61 @@ function wrap_dhamma( $page, $lang = null ) {
 	return $output;
 }
 
-function prepare_html( $html, $lang ) {
-	$raw = fixURLs ( $html, $lang );
-	$raw = stripH1 ( $raw );
-	$raw = stripHR ( $raw );
-	$raw = changeTag ( $raw, "h3", "h2" );
-	$raw = changeTag ( $raw, "h4", "h3" );
-	$raw = fixGoenkaImages ( $raw );
+/**
+ * Pull and process a standard page from dhamma.org.
+ *
+ * @since 1.0.0
+ * @param string $url  URL to fetch.
+ * @param string $lang Language code.
+ * @return string|WP_Error Processed content or error.
+ */
+function wrap_dhamma_pull_page( $url, $lang ) {
+	$raw = wrap_dhamma_fetch_remote_content( $url );
+	
+	if ( is_wp_error( $raw ) ) {
+		return $raw;
+	}
+
+	if ( false === $raw || empty( $raw ) ) {
+		return new WP_Error( 'empty_response', __( 'Empty response from server', 'wrap-dhamma-org' ) );
+	}
+
+	$raw = wrap_dhamma_strip_h1( $raw );
+	$raw = wrap_dhamma_fix_urls( $raw, $lang );
+	$raw = wrap_dhamma_fix_goenka_images( $raw );
+
 	return $raw;
 }
 
-function pull_page ( $url, $lang ) {
-	$raw = fetch_url ( $url );
-	return prepare_html($raw, $lang);
-}
+/**
+ * Pull and process video page from dhamma.org.
+ *
+ * @since 1.0.0
+ * @param string $url URL to fetch.
+ * @return string|WP_Error Processed content or error.
+ */
+function wrap_dhamma_pull_video_page( $url ) {
+	$raw = wrap_dhamma_fetch_remote_content( $url );
 
-const LOCAL_URLS = array(
-	'art' => '/vipassana/art-of-living/',
-	'goenka' => '/vipassana/teacher-goenka/',
-	'vipassana' => '/vipassana/about/',
-	'/' => '',
-);
+	if ( is_wp_error( $raw ) ) {
+		return $raw;
+	}
+
+	if ( false === $raw || empty( $raw ) ) {
+		return new WP_Error( 'empty_response', __( 'Empty response from server', 'wrap-dhamma-org' ) );
+	}
+
+	$raw = wrap_dhamma_get_body_content( $raw );
+	$raw = wrap_dhamma_strip_h1( $raw );
+	$raw = wrap_dhamma_strip_hr( $raw );
+	$raw = wrap_dhamma_strip_table_tags( $raw );
+	$raw = wrap_dhamma_strip_excess_video_line_breaks( $raw );
+	$raw = wrap_dhamma_fix_video_urls( $raw );
+	$raw = wrap_dhamma_fix_blue_ball_images( $raw );
+	$raw = wrap_dhamma_strip_home_link( $raw );
+
+	return $raw;
+}
 
 /**
  * Fix internal URLs to point to local WordPress site.
@@ -202,7 +236,7 @@ const LOCAL_URLS = array(
  * @param string $lang Language code.
  * @return string Modified content.
  */
-function fixURLs ( $raw, $lang ) {
+function wrap_dhamma_fix_urls( $raw, $lang ) {
 	$local_urls = array(
 		'art'       => '/about/art-of-living/',
 		'goenka'    => '/about/goenka/',
@@ -237,7 +271,7 @@ function fixURLs ( $raw, $lang ) {
  * @param string $raw HTML content.
  * @return string Modified content.
  */
-function stripH1( $raw ) {
+function wrap_dhamma_strip_h1( $raw ) {
 	return preg_replace( '@<h1[^>]*?>.*?</h1>@si', '', $raw );
 }
 
@@ -248,7 +282,7 @@ function stripH1( $raw ) {
  * @param string $raw HTML content.
  * @return string Modified content.
  */
-function stripHR ( $raw ) {
+function wrap_dhamma_strip_hr ( $raw ) {
 	return preg_replace( '@<hr.*?>@si', '', $raw );
 }
 
@@ -261,7 +295,7 @@ function stripHR ( $raw ) {
  * @param string $newTag  New tag name.
  * @return string Modified content.
  */
-function changeTag ( $source, $oldTag, $newTag ) {
+function wrap_dhamma_change_tag ( $source, $oldTag, $newTag ) {
 	$source = preg_replace( "@<{$oldTag}>@si", "<{$newTag}>", $source );
 	$source = preg_replace( "@</{$oldTag}>@si", "</{$newTag}>", $source );
 	return $source;
@@ -274,7 +308,7 @@ function changeTag ( $source, $oldTag, $newTag ) {
  * @param string $raw HTML content.
  * @return string Modified content.
  */
-function fixGoenkaImages ( $raw ) {
+function wrap_dhamma_fix_goenka_images ( $raw ) {
 	// Fix image URLs.
 	$raw = preg_replace( '#/images/sng/#si', 'https://www.dhamma.org/images/sng/', $raw );
 
@@ -293,6 +327,95 @@ function fixGoenkaImages ( $raw ) {
 
 	return $raw;
 }
+
+/**
+ * Fix video page URLs.
+ *
+ * @since 1.0.0
+ * @param string $raw HTML content.
+ * @return string Modified content.
+ */
+function wrap_dhamma_fix_video_urls( $raw ) {
+	$raw = preg_replace( "#<a href='./intro/#si", '<a href="https://video.server.dhamma.org/video/intro/', $raw );
+	return $raw;
+}
+
+/**
+ * Strip table tags from content.
+ *
+ * @since 1.0.0
+ * @param string $raw HTML content.
+ * @return string Modified content.
+ */
+function wrap_dhamma_strip_table_tags( $raw ) {
+	$raw = preg_replace( '@</*?table.*?>@si', '', $raw );
+	$raw = preg_replace( '@</*?tr.*?>@si', '', $raw );
+	$raw = preg_replace( '@</*?td.*?>@si', '', $raw );
+	return $raw;
+}
+
+/**
+ * Strip excess line breaks from video content.
+ *
+ * @since 1.0.0
+ * @param string $raw HTML content.
+ * @return string Modified content.
+ */
+function wrap_dhamma_strip_excess_video_line_breaks( $raw ) {
+	$raw = preg_replace( "@\n@si", '', $raw );
+	$raw = preg_replace( '@[ ]+@', ' ', $raw );
+	return $raw;
+}
+
+/**
+ * Extract body content from HTML.
+ *
+ * @since 1.0.0
+ * @param string $raw HTML content.
+ * @return string Body content.
+ */
+function wrap_dhamma_get_body_content( $raw ) {
+	$bodypos = strpos( $raw, '<body>' );
+	if ( false === $bodypos ) {
+		return $raw;
+	}
+
+	$nohead     = substr( $raw, $bodypos + 6 ); // Strip <body> tag.
+	$bodyendpos = strpos( $nohead, '</body>' );
+	
+	if ( false === $bodyendpos ) {
+		return $nohead;
+	}
+
+	$raw = substr( $nohead, 1, ( $bodyendpos - 1 ) );
+	return $raw;
+}
+
+/**
+ * Fix blue ball image references.
+ *
+ * @since 1.0.0
+ * @param string $raw HTML content.
+ * @return string Modified content.
+ */
+function wrap_dhamma_fix_blue_ball_images( $raw ) {
+	$raw = preg_replace( '#<IMG SRC="/images/icons/blueball.gif">#si', '', $raw );
+	return $raw;
+}
+
+/**
+ * Strip home link and RealPlayer reference from content.
+ *
+ * @since 1.0.0
+ * @param string $raw HTML content.
+ * @return string Modified content.
+ */
+function wrap_dhamma_strip_home_link( $raw ) {
+	$raw = preg_replace( "#Download a free copy of <a href='http://www.real.com'>RealPlayer</a>.#si", '', $raw );
+	$raw = preg_replace( "#<br/> <a href='http://www.dhamma.org/'><img style='border:0' src='/images/icons/home.gif' alt=' '></A>#si", '', $raw );
+	return $raw;
+}
+
 
 
 /**
