@@ -418,3 +418,25 @@ echo '<div class="notice notice-success"><p>' . esc_html__( 'Cache cleared succe
 </div>
 <?php
 }
+
+/**
+ * Plugin activation hook.
+ *
+ * @since 4.0.0
+ */
+function wrap_dhamma_activate() {
+// No special actions needed on activation.
+// Cache will be built on first request.
+}
+register_activation_hook( __FILE__, 'wrap_dhamma_activate' );
+
+/**
+ * Plugin deactivation hook.
+ *
+ * @since 4.0.0
+ */
+function wrap_dhamma_deactivate() {
+// Clear all cached content on deactivation.
+wrap_dhamma_clear_cache();
+}
+register_deactivation_hook( __FILE__, 'wrap_dhamma_deactivate' );
