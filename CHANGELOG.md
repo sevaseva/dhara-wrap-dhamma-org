@@ -1,12 +1,8 @@
 # Changelog
 
-## [4.0.0] - In Progress
+All notable changes to the Wrap Dhamma.org WordPress plugin.
 
-Major refactor in progress.
-
-## [3.01] - Previous Version
-
-Legacy version.
+## [4.0.0] - 2024-11-03
 
 ### Added
 - Complete plugin headers with WordPress standards
@@ -28,3 +24,35 @@ Legacy version.
 - Add PHPDoc comments to all HTML processing functions
 - Use WRAP_DHAMMA_PLUGIN_URL constant instead of hardcoded path
 - Improve code formatting and consistency
+- Shortcode support: [dhamma_content]
+- Admin settings page at Settings → Wrap Dhamma.org
+- Cache management with clear cache functionality
+- Plugin activation and deactivation hooks
+- Complete uninstall.php with proper cleanup
+- Comprehensive README documentation
+- Usage examples and technical documentation
+
+### Changed
+- Refactored main wrap_dhamma() function with better error handling
+- Improved fetch_url() with caching and proper HTTP handling
+- Updated fixURLs() to use modern WordPress functions
+- Enhanced HTML processing functions with documentation
+- Improved code organization and formatting throughout
+
+### Fixed
+- Security issues with input validation and output escaping
+- Performance issues by adding caching
+- Deprecated function usage
+- Error handling that could break sites
+- Missing documentation
+
+### Security
+- Added nonce verification for admin actions
+- Implemented capability checks
+- Proper input sanitization
+- Output escaping throughout
+- SSL verification on remote requests
+
+## [3.01] - Previous Version
+
+Legacy version with basic functionality.
