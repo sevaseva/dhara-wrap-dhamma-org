@@ -11,3 +11,6 @@ Legacy version.
 ### Added
 - Complete plugin headers with WordPress standards
 - ABSPATH security check
+- Plugin constants for version, paths, and cache duration
+- Internationalization (i18n) support with text domain
+- Helper function for allowed pages list

@@ -34,6 +34,34 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// Define plugin constants.
+define( 'WRAP_DHAMMA_VERSION', '4.0.0' );
+define( 'WRAP_DHAMMA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'WRAP_DHAMMA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'WRAP_DHAMMA_CACHE_EXPIRATION', HOUR_IN_SECONDS * 6 ); // 6 hours default
+
+// Initialize plugin.
+add_action( 'plugins_loaded', 'wrap_dhamma_init' );
+
+/**
+ * Initialize plugin (load text domain for translations).
+ *
+ * @since 4.0.0
+ */
+function wrap_dhamma_init() {
+	load_plugin_textdomain( 'wrap-dhamma-org', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+}
+
+/**
+ * Get list of allowed pages.
+ *
+ * @since 4.0.0
+ * @return array Array of allowed page slugs.
+ */
+function wrap_dhamma_get_allowed_pages() {
+	return array( 'vipassana', 'code', 'goenka', 'art', 'qanda', 'dscode', 'osguide', 'privacy', 'video' );
+}
+
 function fetch_url( $url ) {
 	$r = wp_remote_get( $url );
 	if ( is_wp_error( $r ) ) {
