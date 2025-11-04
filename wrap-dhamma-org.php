@@ -297,18 +297,6 @@ function wrap_dhamma_fix_goenka_images( $raw ) {
 }
 
 /**
- * Fix video page URLs.
- *
- * @since 1.0.0
- * @param string $raw HTML content.
- * @return string Modified content.
- */
-function wrap_dhamma_fix_video_urls( $raw ) {
-	$raw = preg_replace( "#<a href='./intro/#si", '<a href="https://video.server.dhamma.org/video/intro/', $raw );
-	return $raw;
-}
-
-/**
  * Strip table tags from content.
  *
  * @since 1.0.0
