@@ -297,18 +297,6 @@ function wrap_dhamma_fix_goenka_images( $raw ) {
 }
 
 /**
- * Fix blue ball image references.
- *
- * @since 1.0.0
- * @param string $raw HTML content.
- * @return string Modified content.
- */
-function wrap_dhamma_fix_blue_ball_images( $raw ) {
-	$raw = preg_replace( '#<IMG SRC="/images/icons/blueball.gif">#si', '', $raw );
-	return $raw;
-}
-
-/**
  * Strip home link and RealPlayer reference from content.
  *
  * @since 1.0.0
