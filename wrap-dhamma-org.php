@@ -145,14 +145,9 @@ function wrap_dhamma( $page, $lang = null ) {
 		return new WP_Error( 'invalid_page', $error_msg );
 	}
 
-	// Build URL based on page type.
-	if ( 'video' === $page ) {
-		$url = 'https://video.server.dhamma.org/video/';
-		$text_to_output = wrap_dhamma_pull_video_page( $url );
-	} else {
-		$url = 'https://www.dhamma.org/' . $lang . '/' . $page . '?raw';
-		$text_to_output = wrap_dhamma_pull_page( $url, $lang );
-	}
+	// Build URL.
+	$url = 'https://www.dhamma.org/' . $lang . '/' . $page . '?raw';
+	$text_to_output = wrap_dhamma_pull_page( $url, $lang );
 
 	// Handle errors.
 	if ( is_wp_error( $text_to_output ) ) {
