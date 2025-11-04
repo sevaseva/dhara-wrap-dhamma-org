@@ -297,20 +297,6 @@ function wrap_dhamma_fix_goenka_images( $raw ) {
 }
 
 /**
- * Strip table tags from content.
- *
- * @since 1.0.0
- * @param string $raw HTML content.
- * @return string Modified content.
- */
-function wrap_dhamma_strip_table_tags( $raw ) {
-	$raw = preg_replace( '@</*?table.*?>@si', '', $raw );
-	$raw = preg_replace( '@</*?tr.*?>@si', '', $raw );
-	$raw = preg_replace( '@</*?td.*?>@si', '', $raw );
-	return $raw;
-}
-
-/**
  * Strip excess line breaks from video content.
  *
  * @since 1.0.0
