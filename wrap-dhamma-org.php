@@ -59,7 +59,7 @@ function wrap_dhamma_init() {
  * @return array Array of allowed page slugs.
  */
 function wrap_dhamma_get_allowed_pages() {
-	return array( 'vipassana', 'code', 'goenka', 'art', 'qanda', 'dscode', 'osguide', 'privacy', 'video' );
+	return array( 'vipassana', 'code', 'goenka', 'art', 'qanda', 'dscode', 'osguide', 'privacy' );
 }
 
 /**
