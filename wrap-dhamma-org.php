@@ -297,19 +297,6 @@ function wrap_dhamma_fix_goenka_images( $raw ) {
 }
 
 /**
- * Strip excess line breaks from video content.
- *
- * @since 1.0.0
- * @param string $raw HTML content.
- * @return string Modified content.
- */
-function wrap_dhamma_strip_excess_video_line_breaks( $raw ) {
-	$raw = preg_replace( "@\n@si", '', $raw );
-	$raw = preg_replace( '@[ ]+@', ' ', $raw );
-	return $raw;
-}
-
-/**
  * Extract body content from HTML.
  *
  * @since 1.0.0
