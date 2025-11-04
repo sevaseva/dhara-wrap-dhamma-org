@@ -288,10 +288,6 @@ function wrap_dhamma_fix_goenka_images( $raw ) {
 	return $raw;
 }
 
-
-
-
-
 /**
  * Shortcode handler for [dhamma_content].
  *
