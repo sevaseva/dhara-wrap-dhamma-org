@@ -285,14 +285,6 @@ function wrap_dhamma_fix_goenka_images( $raw ) {
 	$raw = str_replace( '<img alt="S. N. Goenka at U.N."', '<img alt="S. N. Goenka at U.N." style="display: block; margin-left: auto; margin-right: auto;"', $raw );
 	$raw = str_replace( 'Photo courtesy Beliefnet, Inc.', '<p style="text-align:center">Photo courtesy Beliefnet, Inc.</p>', $raw );
 
-	// Replace main Goenka image with local copy.
-	$plugin_url = WRAP_DHAMMA_PLUGIN_URL;
-	$raw        = str_replace(
-		'src="https://www.dhamma.org/assets/sng/sng-f01f4d6595afa4ab14edced074a7e45c.gif"',
-		'id="goenka-image" src="' . esc_url( $plugin_url . 'goenka.png' ) . '"',
-		$raw
-	);
-
 	return $raw;
 }
 
