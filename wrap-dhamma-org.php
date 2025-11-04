@@ -297,30 +297,6 @@ function wrap_dhamma_fix_goenka_images( $raw ) {
 }
 
 /**
- * Extract body content from HTML.
- *
- * @since 1.0.0
- * @param string $raw HTML content.
- * @return string Body content.
- */
-function wrap_dhamma_get_body_content( $raw ) {
-	$bodypos = strpos( $raw, '<body>' );
-	if ( false === $bodypos ) {
-		return $raw;
-	}
-
-	$nohead     = substr( $raw, $bodypos + 6 ); // Strip <body> tag.
-	$bodyendpos = strpos( $nohead, '</body>' );
-	
-	if ( false === $bodyendpos ) {
-		return $nohead;
-	}
-
-	$raw = substr( $nohead, 1, ( $bodyendpos - 1 ) );
-	return $raw;
-}
-
-/**
  * Fix blue ball image references.
  *
  * @since 1.0.0
