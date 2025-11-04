@@ -197,36 +197,6 @@ function wrap_dhamma_pull_page( $url, $lang ) {
 }
 
 /**
- * Pull and process video page from dhamma.org.
- *
- * @since 1.0.0
- * @param string $url URL to fetch.
- * @return string|WP_Error Processed content or error.
- */
-function wrap_dhamma_pull_video_page( $url ) {
-	$raw = wrap_dhamma_fetch_remote_content( $url );
-
-	if ( is_wp_error( $raw ) ) {
-		return $raw;
-	}
-
-	if ( false === $raw || empty( $raw ) ) {
-		return new WP_Error( 'empty_response', __( 'Empty response from server', 'wrap-dhamma-org' ) );
-	}
-
-	$raw = wrap_dhamma_get_body_content( $raw );
-	$raw = wrap_dhamma_strip_h1( $raw );
-	$raw = wrap_dhamma_strip_hr( $raw );
-	$raw = wrap_dhamma_strip_table_tags( $raw );
-	$raw = wrap_dhamma_strip_excess_video_line_breaks( $raw );
-	$raw = wrap_dhamma_fix_video_urls( $raw );
-	$raw = wrap_dhamma_fix_blue_ball_images( $raw );
-	$raw = wrap_dhamma_strip_home_link( $raw );
-
-	return $raw;
-}
-
-/**
  * Fix internal URLs to point to local WordPress site.
  *
  * @since 1.0.0
