@@ -296,18 +296,7 @@ function wrap_dhamma_fix_goenka_images( $raw ) {
 	return $raw;
 }
 
-/**
- * Strip home link and RealPlayer reference from content.
- *
- * @since 1.0.0
- * @param string $raw HTML content.
- * @return string Modified content.
- */
-function wrap_dhamma_strip_home_link( $raw ) {
-	$raw = preg_replace( "#Download a free copy of <a href='http://www.real.com'>RealPlayer</a>.#si", '', $raw );
-	$raw = preg_replace( "#<br/> <a href='http://www.dhamma.org/'><img style='border:0' src='/images/icons/home.gif' alt=' '></A>#si", '', $raw );
-	return $raw;
-}
+
 
 
 
