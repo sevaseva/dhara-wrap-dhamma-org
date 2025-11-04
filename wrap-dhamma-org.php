@@ -496,7 +496,7 @@ function wrap_dhamma_options_page() {
 		<code>[dhamma_content page="vipassana"]</code>
 		<p><?php esc_html_e( 'Optional parameters:', 'wrap-dhamma-org' ); ?></p>
 		<ul>
-			<li><code>page</code> - <?php esc_html_e( 'Page to display (vipassana, code, goenka, art, qanda, dscode, osguide, privacy, video)', 'wrap-dhamma-org' ); ?></li>
+			<li><code>page</code> - <?php esc_html_e( 'Page to display (vipassana, code, goenka, art, qanda, dscode, osguide, privacy)', 'wrap-dhamma-org' ); ?></li>
 			<li><code>lang</code> - <?php esc_html_e( 'Language code (defaults to site language)', 'wrap-dhamma-org' ); ?></li>
 		</ul>
 		<p><?php esc_html_e( 'Example:', 'wrap-dhamma-org' ); ?> <code>[dhamma_content page="goenka" lang="en"]</code></p>
