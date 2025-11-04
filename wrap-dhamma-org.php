@@ -332,11 +332,7 @@ if ( null !== $page ) {
 $allowed_pages = wrap_dhamma_get_allowed_pages();
 if ( in_array( $page, $allowed_pages, true ) ) {
 $lang = substr( get_bloginfo( 'language' ), 0, 2 );
-if ( 'video' === $page ) {
-$url = 'https://video.server.dhamma.org/video/';
-} else {
 $url = 'https://www.dhamma.org/' . $lang . '/' . $page . '?raw';
-}
 $cache_key = 'wrap_dhamma_' . md5( $url );
 delete_transient( $cache_key );
 }
